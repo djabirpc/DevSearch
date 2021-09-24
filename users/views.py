@@ -4,9 +4,12 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
 from .models import Profile
+from .forms import CustomUserCreationForm
 
 
 def loginUser(request):
+    page = 'login'
+    context = {'page':page}
 
     if request.user.is_authenticated:
         return redirect('profiles')
@@ -28,12 +31,30 @@ def loginUser(request):
         else:
             messages.error(request,'Username or password is incorrect')
             
-    return render(request,'users/login_register.html')
+    return render(request,'users/login_register.html',context)
 
 def logoutUser(request):
     logout(request)
-    messages.success(request,'User logout')
+    messages.info(request,'User logout')
     return redirect('login')
+
+def registerUser(request):
+    page = 'register'
+    form = CustomUserCreationForm()
+
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False) #save user temporaly
+            user.username = user.username.lower()
+            user.save()
+            messages.success(request,'User created!')
+            login(request,user)
+            return redirect('profiles')
+        else:
+            messages.error(request,'An error occured while registration')
+    context = {'page':page,'form':form}
+    return render(request,'users/login_register.html',context)
 
 def profiles(request):
     profiles = Profile.objects.all()
