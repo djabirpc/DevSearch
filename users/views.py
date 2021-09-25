@@ -4,8 +4,10 @@ from django.contrib.auth import login,authenticate,logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.db.models import Q
 from .models import Profile
 from .forms import CustomUserCreationForm,ProfileForm,SkillForm
+from .utils import searchProfiles,paginationProfiles
 
 
 def loginUser(request):
@@ -58,8 +60,14 @@ def registerUser(request):
     return render(request,'users/login_register.html',context)
 
 def profiles(request):
-    profiles = Profile.objects.all()
-    context = {'profiles': profiles}
+    profiles,search_query = searchProfiles(request)
+    custom_range,profiles = paginationProfiles(request,profiles,6)
+
+    context = {
+        'profiles': profiles,
+        'search_query':search_query,
+        'custom_range':custom_range
+    }
     return render(request, 'users/profiles.html', context)
     
 def userProfile(request, pk):
