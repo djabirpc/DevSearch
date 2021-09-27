@@ -16,4 +16,7 @@ urlpatterns = [
     # Use Token
     path('users/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('users/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    # Tag
+    path('remove-tag/',views.removeTag)
 ]
